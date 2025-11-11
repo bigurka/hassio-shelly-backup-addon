@@ -1,0 +1,21 @@
+{
+  "name": "Shelly Backup/Restore",
+  "version": "0.1.0",
+  "slug": "shelly_backup",
+  "description": "Scan Shelly devices on LAN, backup/restore configs, convert Gen1->Gen2",
+  "arch": ["armv7", "armhf", "aarch64", "amd64", "i386"],
+  "startup": "services",
+  "boot": "auto",
+  "options": {
+    "subnet": "192.168.188.0/24",
+    "http_port": 8080
+  },
+  "schema": {
+    "subnet": "str",
+    "http_port": "int"
+  },
+  "webui": "http://[HOST]:[PORT:8080]",
+  "ports": {"8080/tcp": 8080},
+  "map": ["config:rw", "data:rw"],
+  "host_network": false
+}

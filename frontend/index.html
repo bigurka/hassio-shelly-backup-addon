@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Shelly Backup Add-on</title>
+    <style>
+      body{font-family:system-ui,Segoe UI,Roboto,Arial;padding:18px}
+      button{margin:6px}
+      pre{background:#f4f4f4;padding:10px;border-radius:6px;white-space:pre-wrap}
+    </style>
+  </head>
+  <body>
+    <h1>Shelly Backup (scaffold)</h1>
+    <p>Frontend minimale. Usa le API esposte su <code>/scan</code>, <code>/backup_all</code>, <code>/backups</code>, <code>/restore_specific</code>.</p>
+    <button onclick="fetch('/scan').then(r=>r.json()).then(j=>document.getElementById('out').innerText=JSON.stringify(j,null,2))">Scan subnet</button>
+    <button onclick="fetch('/backup_all',{method:'POST'}).then(r=>r.json()).then(j=>document.getElementById('out').innerText=JSON.stringify(j,null,2))">Backup All</button>
+    <h3>Output</h3>
+    <pre id="out">-</pre>
+  </body>
+</html>

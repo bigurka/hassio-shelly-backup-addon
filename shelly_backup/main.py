@@ -155,6 +155,21 @@ def build_gen2_payloads(payload: dict):
     if 'name' in p:
         tasks.append(('/rpc/Device.SetName', {'name': p['name']}))
     return tasks
-@app.post("/restore_specific")
-async def restore_specific(file: UploadFile = File(...), target_ip: str = Form(...), device_type: str = Form(...)):
-    \"\"\"Restore using targeted mapping for gen1 or gen2 devices.\n    device_type: 'gen1' or 'gen2'\n    \"\"\"\n    content = await file.read()\n    try:\n        obj = json.loads(content)\n    except Exception:\n        return JSONResponse({\"result\": \"error\", \"reason\": \"invalid json\"}, status_code=400)\n    payload = obj.get('payload')\n    if not payload:\n        return JSONResponse({\"result\": \"error\", \"reason\": \"no payload in file\"}, status_code=400)\n    # build sequences of small writes to avoid overwriting system fields\n    if device_type == 'gen1':\n        seq = build_gen1_payloads(payload)\n    else:\n        seq = build_gen2_payloads(payload)\n    results = []\n    for path, data in seq:\n        r = await post_json(target_ip, path, data)\n        results.append(r)\n    return {\"attempts\": results}\n@app.get(\"/backups\")\nasync def list_backups():\n    files = []\n    for f in os.listdir(BACKUP_DIR):\n        if f.endswith('.json'):\n            files.append(f)\n    return {\"files\": sorted(files)}\n@app.get(\"/download/{filename}\")\nasync def download(filename: str):\n    path = os.path.join(BACKUP_DIR, filename)\n    if os.path.exists(path):\n        return FileResponse(path, filename=filename)\n    return JSONResponse({\"error\": \"not_found\"}, status_code=404)\n@app.get(\"/ping\")\nasync def ping():\n    return {\"status\": \"ok\"}\n
+@app.get("/backups")
+async def list_backups():
+    files = []
+    for f in os.listdir(BACKUP_DIR):
+        if f.endswith('.json'):
+            files.append(f)
+    return {"files": sorted(files)}
+
+@app.get("/download/{filename}")
+async def download(filename: str):
+    path = os.path.join(BACKUP_DIR, filename)
+    if os.path.exists(path):
+        return FileResponse(path, filename=filename)
+    return JSONResponse({"error": "not_found"}, status_code=404)
+
+@app.get("/ping")
+async def ping():
+    return {"status": "ok"}
